@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import './App.css';
 import TweetBox from './TweetBox';
 import Feed from './Feed';
+import axios from 'axios';
 
 class App extends Component {
   constructor(props){
@@ -16,7 +17,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    fetch("https://still-garden-88285.herokuapp.com/draft_tweets")
+    /*fetch("https://still-garden-88285.herokuapp.com/draft_tweets")
       .then(res => res.json())
       .then(
         (result) => {
@@ -31,7 +32,38 @@ class App extends Component {
             error: error
           })
         }
-      )
+      )*/
+
+      
+      let tweets;
+      // Make a request for a user with a given ID
+      axios.get('https://still-garden-88285.herokuapp.com/draft_tweets')
+        .then(function (response) {
+          //response.JSON();
+          console.log(response);
+          
+          tweets = response.data.draft_tweets;
+          console.log(tweets);
+        })
+        .catch(
+          (error) => {
+            this.setState({
+            isLoaded: true,
+            error: error
+            })
+          }
+        )
+        .then(
+          (response) => {
+            this.setState({
+              tweets: tweets,
+              isLoaded: true
+            })
+          }
+        );
+
+
+
   }
 
   handleSubmit(newText) {
@@ -52,12 +84,12 @@ class App extends Component {
 
     // Dynamic UI !
     let newTweet = {
-      user_name: 'Yvone',
-      avatar: 'https://img.ifcdn.com/images/d3951bf44788590b80f69c0c65718f7a23eb33c645cb677ee335f81a6e785ee6_3.jpg',
+      user_name: 'Carlos',
+      avatar: 'https://avatars0.githubusercontent.com/u/26472750?s=460&v=4',
       description: newText
     };
 
-    let headers = {};
+    /*let headers = {};
     headers['Content-Type'] = 'application/json';
 
     const options = {
@@ -82,6 +114,24 @@ class App extends Component {
           this.setState({
             isLoaded: true,
             error
+          });
+        }
+      )*/
+
+      axios({
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        url: 'https://still-garden-88285.herokuapp.com/draft_tweets',
+        data: JSON.stringify(newTweet)
+      })
+      .then(
+        (response)=>{
+          let newTweets = this.state.tweets.slice();
+          console.log(newTweets);
+          debugger;
+          this.setState({
+            isLoaded: true,
+            tweets: newTweets.concat(response.data.draft_tweet)
           });
         }
       )
